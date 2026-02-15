@@ -21,7 +21,7 @@
   "frontend/src/pages/AdminLoginPage.tsx": "Admin authentication page with first-time setup flow for creating admin ID and password, and login form for subsequent access, with complete bilingual support.",
   "frontend/src/components/admin/HomePageImagesManager.tsx": "New admin component for managing home page images with upload, preview, bilingual captions, listing, and delete functionality using dedicated homepage image hooks.",
   "frontend/index.html": "HTML entry point with proper DOCTYPE, meta tags for SEO, base href configuration, and semantic structure for IC deployment.",
-  "frontend/DEPLOYMENT.md": "Comprehensive deployment guide with updated verification checklist covering hash route testing, admin authentication flow, logo fallback verification, and domain validation testing in English.",
+  "frontend/DEPLOYMENT.md": "Comprehensive IC deployment guide with detailed post-deployment verification checklist covering hash route testing, deep linking, refresh behavior, admin authentication flow, logo fallback verification, backend connectivity checks, and troubleshooting common deployment issues.",
   "frontend/src/pages/NotFoundPage.tsx": "User-friendly 404 error page displaying available routes with navigation links, supporting bilingual content and providing clear guidance when users visit non-existent routes.",
   "frontend/src/utils/domainValidation.ts": "Domain validation utility supporting fully qualified domain names with dots, providing English-only user-facing error messages with examples for invalid inputs."
 }

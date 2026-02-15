@@ -1,19 +1,16 @@
 import Map "mo:core/Map";
 import Order "mo:core/Order";
 import Array "mo:core/Array";
-import List "mo:core/List";
-import Blob "mo:core/Blob";
 import Text "mo:core/Text";
-import Nat32 "mo:core/Nat32";
 import Runtime "mo:core/Runtime";
 import Iter "mo:core/Iter";
+import Nat32 "mo:core/Nat32";
 import Principal "mo:core/Principal";
 import Storage "blob-storage/Storage";
 import MixinStorage "blob-storage/Mixin";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
-// Use the migration module in the with clause
 actor {
   // DATA TYPES
 

@@ -1,86 +1,19 @@
 {
   "kind": "build_request",
-  "title": "Publish the website live and resolve custom-domain validation",
+  "title": "Host/Deploy the website on the Internet Computer",
   "priority": "normal",
-  "requirements": [
-    {
-      "id": "REQ-1",
-      "text": "Ensure the website is fully accessible as a deployed live site on the Internet Computer, with working navigation for the existing routes (Home, About Us, Projects, Gallery, Contact, Admin Login, Admin Dashboard) using the current hash-based routing setup.",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "msg-7"
-        ],
-        "quotes": [
-          "I want a website"
-        ]
-      },
-      "acceptanceCriteria": [
-        "A live deployment URL is available and loads the site successfully in a new browser session.",
-        "Visiting each route via hash URLs (/#/, /#/about, /#/projects, /#/gallery, /#/contact, /#/admin-login) renders without 404 errors.",
-        "Deep linking and browser refresh on any hash route continue to work after deployment.",
-        "Admin authentication flow still works post-deployment (admin-login page, login, redirect to admin dashboard, logout)."
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "text": "Fix the custom domain input/validation so that a fully qualified domain name containing dots (e.g., \"www.uthaansewasamiti.org\") is accepted, or provide a clear, user-facing English validation message that explains the exact allowed format and how to enter a valid domain for publishing.",
-      "target": "unknown",
-      "source": {
-        "messageIds": [
-          "msg-5",
-          "msg-6"
-        ],
-        "quotes": [
-          "Domain www.uthaansewasamiti.org must be between 5 and 50 characters and contain only letters, numbers, and hyphens."
-        ]
-      },
-      "acceptanceCriteria": [
-        "Entering a standard domain with dots (e.g., www.uthaansewasamiti.org) no longer fails validation OR the UI clearly instructs the user on the required domain format with an English error message.",
-        "If restrictions remain (letters/numbers/hyphens only), the UI provides an explicit example of an acceptable input and explains that dots are not allowed (and why)."
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Ensure the header logo image reference (\"/assets/generated/uthaan-logo-transparent.dim_200x200.png\") is present in the deployed frontend assets, or add a safe fallback rendering so the header does not show a broken image if the asset is missing.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-7"
-        ],
-        "quotes": [
-          "I want a website"
-        ]
-      },
-      "acceptanceCriteria": [
-        "In the deployed site, the header logo does not render as a broken image.",
-        "If the generated logo asset exists, it loads successfully from the deployed frontend canister.",
-        "If the generated logo asset is missing, the header shows a non-broken fallback (e.g., text mark or placeholder) and remains visually aligned."
-      ]
-    }
-  ],
+  "requirements": [],
   "constraints": [
-    "Backend must remain a single Motoko actor in backend/main.mo; only add backend/migration.mo if a stable-state upgrade is required.",
-    "Do not edit files under frontend/src/components/ui or any paths listed as immutable in SYSTEM_CONTEXT.",
-    "Use English for any user-facing text added/changed by this request."
+    "Do not modify any frontend immutable paths listed in SYSTEM_CONTEXT (even though no code changes are requested).",
+    "Respect the existing single-actor Motoko backend architecture (even though no backend changes are requested)."
   ],
   "nonGoals": [
-    "Adding new site sections or new pages beyond the existing Home/About/Projects/Gallery/Contact/Admin pages.",
-    "Integrating third-party authentication providers or external databases.",
-    "Implementing real-time features (WebSockets/chat/notifications)."
+    "Adding new site features or pages unrelated to deployment.",
+    "Changing the routing strategy (the app already uses hash-based routing).",
+    "Integrating third-party hosting providers (deploy to Internet Computer as described in the repo docs)."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }
