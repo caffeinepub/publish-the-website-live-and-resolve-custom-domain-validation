@@ -1,0 +1,76 @@
+{
+  "kind": "coverage_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-15T02:01:19.779Z",
+  "sources": {
+    "buildRequest": true,
+    "implementationPlan": true
+  },
+  "requirements": {
+    "total": 3,
+    "implemented": 3,
+    "items": [
+      {
+        "id": "REQ-1",
+        "summary": "Ensure the website is fully accessible as a deployed live site on the Internet Computer, with working navigation for the existing routes (Home, About Us, Projects, Gallery, Contact, Admin Login, Admin Dashboard) using the current hash-based routing setup.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/App.tsx",
+          "frontend/src/contexts/AuthContext.tsx",
+          "frontend/DEPLOYMENT.md"
+        ],
+        "matchedFiles": [
+          "frontend/src/App.tsx",
+          "frontend/src/contexts/AuthContext.tsx",
+          "frontend/DEPLOYMENT.md"
+        ]
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Fix the custom domain input/validation so that a fully qualified domain name containing dots (e.g., \"www.uthaansewasamiti.org\") is accepted, or provide a clear, user-facing English validation message that explains the exact allowed format and how to enter a valid domain for publishing.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/utils/domainValidation.ts",
+          "frontend/src/pages/AdminPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/utils/domainValidation.ts",
+          "frontend/src/pages/AdminPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Ensure the header logo image reference (\"/assets/generated/uthaan-logo-transparent.dim_200x200.png\") is present in the deployed frontend assets, or add a safe fallback rendering so the header does not show a broken image if the asset is missing.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/public/assets/generated/uthaan-logo-transparent.dim_200x200.png",
+          "frontend/src/components/Header.tsx",
+          "frontend/src/components/Footer.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/Header.tsx",
+          "frontend/src/components/Footer.tsx"
+        ]
+      }
+    ]
+  },
+  "changedFiles": [
+    "backend/main.mo",
+    "build-request.json",
+    "feature_evidence.json",
+    "frontend-file-summaries.txt",
+    "frontend-implementation-plan.json",
+    "frontend/DEPLOYMENT.md",
+    "frontend/src/App.tsx",
+    "frontend/src/components/Footer.tsx",
+    "frontend/src/components/Header.tsx",
+    "frontend/src/contexts/AuthContext.tsx",
+    "frontend/src/pages/AdminPage.tsx",
+    "frontend/src/pages/NotFoundPage.tsx",
+    "frontend/src/utils/domainValidation.ts",
+    "project_state.json",
+    "scratch/component-selection.json",
+    "spec.md",
+    "spec_vs_diff_report.json"
+  ]
+}

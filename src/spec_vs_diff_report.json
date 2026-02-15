@@ -1,0 +1,61 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-15T02:01:19.777Z",
+  "summary": "Diff implements custom-domain validation that accepts dotted FQDNs, adds runtime logo fallbacks, and reinforces hash-based routing with a NotFound route plus a deployment guide. However, a true \"live deployment URL\" cannot be verified from code changes alone, and new user-facing Hindi text/new 404 page appear outside the request constraints/non-goals.",
+  "missing_requirements": [
+    {
+      "id": "REQ-1",
+      "requirement": "Ensure the website is fully accessible as a deployed live site on the Internet Computer (including providing/ensuring a live deployment URL and verifying all specified hash routes and admin auth flow post-deployment).",
+      "reason": "The diff adds hash routing configuration and a deployment checklist, but does not provide or evidence an actual deployed/live URL or deployment configuration changes that guarantee the site is live on IC. From the diff summary alone, post-deployment behavior cannot be confirmed.",
+      "evidence": [
+        "frontend/DEPLOYMENT.md",
+        "frontend/src/App.tsx"
+      ]
+    },
+    {
+      "requirement": "Use English for any user-facing text added/changed by this request.",
+      "reason": "New/changed UI includes Hindi user-facing strings (e.g., 404 page labels, header language menu items). This conflicts with the constraint to use English for any new/changed user-facing text.",
+      "evidence": [
+        "frontend/src/pages/NotFoundPage.tsx",
+        "frontend/src/components/Header.tsx",
+        "frontend/src/pages/AdminPage.tsx",
+        "frontend/src/components/Footer.tsx"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "Added a new 404/NotFound page and NotFound routing handling.",
+      "reason": "BuildRequest non-goals explicitly disallow adding new pages beyond existing Home/About/Projects/Gallery/Contact/Admin pages; a new NotFound page is a new page/route component not requested.",
+      "evidence": [
+        "frontend/src/pages/NotFoundPage.tsx",
+        "frontend/src/App.tsx"
+      ]
+    },
+    {
+      "description": "Expanded/introduced additional bilingual (Hindi) user-facing text in newly added/modified UI elements.",
+      "reason": "The request constraint requires English for user-facing text added/changed by this request; adding Hindi translations goes beyond what was requested and violates the constraint.",
+      "evidence": [
+        "frontend/src/pages/NotFoundPage.tsx",
+        "frontend/src/components/Header.tsx",
+        "frontend/src/pages/AdminPage.tsx",
+        "frontend/src/components/Footer.tsx"
+      ]
+    }
+  ],
+  "confidence": 0.72,
+  "changed_files": [
+    "backend/main.mo",
+    "frontend-file-summaries.txt",
+    "frontend/DEPLOYMENT.md",
+    "frontend/src/App.tsx",
+    "frontend/src/components/Footer.tsx",
+    "frontend/src/components/Header.tsx",
+    "frontend/src/contexts/AuthContext.tsx",
+    "frontend/src/pages/AdminPage.tsx",
+    "frontend/src/pages/NotFoundPage.tsx",
+    "frontend/src/utils/domainValidation.ts",
+    "project_state.json"
+  ]
+}

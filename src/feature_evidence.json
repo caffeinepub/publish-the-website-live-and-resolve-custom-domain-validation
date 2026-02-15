@@ -1,0 +1,69 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-ensure-the-website-is-fully-accessible-as-a-deployed-live-site-on-the-internet-computer-with-working-navigation-for-the-existing-routes-home-about-us-projects-gallery-contact-admin-login-admin-dashboard-using-the-current-hash-based-routing-setup",
+      "featureTitle": "Ensure the website is fully accessible as a deployed live site on the Internet Computer, with working navigation for the existing routes (Home, About Us, Projects, Gallery, Contact, Admin Login, Admin Dashboard) using the current hash-based routing setup.",
+      "files": [
+        "frontend/DEPLOYMENT.md",
+        "frontend/src/App.tsx",
+        "frontend/src/contexts/AuthContext.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-fix-the-custom-domain-input-validation-so-that-a-fully-qualified-domain-name-containing-dots-e-g-www-uthaansewasamiti-org-is-accepted-or-provide-a-clear-user-facing-english-validation-message-that-explains-the-exact-allowed-format-and-how-to-enter-a-valid-domain-for-publishing",
+      "featureTitle": "Fix the custom domain input/validation so that a fully qualified domain name containing dots (e.g., \"www.uthaansewasamiti.org\") is accepted, or provide a clear, user-facing English validation message that explains the exact allowed format and how to enter a valid domain for publishing.",
+      "files": [
+        "frontend/src/pages/AdminPage.tsx",
+        "frontend/src/utils/domainValidation.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-ensure-the-header-logo-image-reference-assets-generated-uthaan-logo-transparent-dim-200x200-png-is-present-in-the-deployed-frontend-assets-or-add-a-safe-fallback-rendering-so-the-header-does-not-show-a-broken-image-if-the-asset-is-missing",
+      "featureTitle": "Ensure the header logo image reference (\"/assets/generated/uthaan-logo-transparent.dim_200x200.png\") is present in the deployed frontend assets, or add a safe fallback rendering so the header does not show a broken image if the asset is missing.",
+      "files": [
+        "frontend/src/components/Footer.tsx",
+        "frontend/src/components/Header.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

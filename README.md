@@ -1,2 +1,3 @@
-# publish-the-website-live-and-resolve-custom-domain-validation
-Exported from Caffeine project: Publish the website live and resolve custom-domain validation
+## 
+
+To run app build and run docker image: `docker build -t app . docker run -it --network host app`

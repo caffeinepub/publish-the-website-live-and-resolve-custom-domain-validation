@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "Website project to build a new website (domain validation constraints noted).",
+  "architectural_notes": [
+    "Domain input must be 5–50 characters and contain only letters, numbers, and hyphens (no dots/prefix like www.)."
+  ],
+  "known_issues": [
+    "Domain entry 'www.uthaansewasamiti.org' fails validation due to invalid characters/format (contains dots)."
+  ],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-ensure-the-website-is-fully-accessible-as-a-deployed-live-site-on-the-internet-computer-with-working-navigation-for-the-existing-routes-home-about-us-projects-gallery-contact-admin-login-admin-dashboard-using-the-current-hash-based-routing-setup",
+      "title": "Ensure the website is fully accessible as a deployed live site on the Internet Computer, with working navigation for the existing routes (Home, About Us, Projects, Gallery, Contact, Admin Login, Admin Dashboard) using the current hash-based routing setup.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-custom-domain-input-validation-so-that-a-fully-qualified-domain-name-containing-dots-e-g-www-uthaansewasamiti-org-is-accepted-or-provide-a-clear-user-facing-english-validation-message-that-explains-the-exact-allowed-format-and-how-to-enter-a-valid-domain-for-publishing",
+      "title": "Fix the custom domain input/validation so that a fully qualified domain name containing dots (e.g., \"www.uthaansewasamiti.org\") is accepted, or provide a clear, user-facing English validation message that explains the exact allowed format and how to enter a valid domain for publishing.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-header-logo-image-reference-assets-generated-uthaan-logo-transparent-dim-200x200-png-is-present-in-the-deployed-frontend-assets-or-add-a-safe-fallback-rendering-so-the-header-does-not-show-a-broken-image-if-the-asset-is-missing",
+      "title": "Ensure the header logo image reference (\"/assets/generated/uthaan-logo-transparent.dim_200x200.png\") is present in the deployed frontend assets, or add a safe fallback rendering so the header does not show a broken image if the asset is missing.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Build a website for the user (create and publish a site).",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Publish the website live and resolve custom-domain validation",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}
