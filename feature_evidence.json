@@ -1,0 +1,46 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-update-the-admin-dashboard-domain-tab-to-save-the-validated-domain-to-the-backend-and-to-show-the-currently-saved-domain-value",
+      "featureTitle": "Update the Admin Dashboard \"Domain\" tab to save the validated domain to the backend and to show the currently saved domain value.",
+      "files": [
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/AdminPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-clear-english-only-guidance-in-the-admin-domain-tab-explaining-what-the-custom-domain-setting-does-and-what-manual-steps-are-required-to-actually-use-the-new-domain-dns-ic-custom-domain-setup-including-that-the-existing-uthaansewasamiti-1eg-caffeine-xyz-url-will-still-work-unless-a-domain-is-properly-pointed",
+      "featureTitle": "Add clear English-only guidance in the Admin \"Domain\" tab explaining what the custom domain setting does and what manual steps are required to actually use the new domain (DNS + IC/custom domain setup), including that the existing `uthaansewasamiti-1eg.caffeine.xyz` URL will still work unless a domain is properly pointed.",
+      "files": [
+        "frontend/src/pages/AdminPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

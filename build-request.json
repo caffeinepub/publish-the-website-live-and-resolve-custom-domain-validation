@@ -1,0 +1,87 @@
+{
+  "kind": "build_request",
+  "title": "Support hosting the site under a new domain/name (custom domain setting)",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Add a persistent \"custom domain / site name\" setting in the backend that an admin can save and later retrieve (e.g., `customDomain : ?Text`).",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "I want to host it with new name"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Backend exposes a query method to retrieve the currently saved custom domain (returns null/empty when not set).",
+        "Backend exposes an admin-only update method to set/clear the custom domain.",
+        "Non-admin callers attempting to update the custom domain receive an authorization error.",
+        "No existing organization content endpoints are broken by the type/schema change."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Update the Admin Dashboard \"Domain\" tab to save the validated domain to the backend and to show the currently saved domain value.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "I want to host it with new name"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Clicking \"Validate Domain\" still validates using the existing `normalizeDomain` + `validateCustomDomain` logic.",
+        "If validation passes, the UI calls the backend to persist the domain and shows a success toast confirming it was saved.",
+        "The Domain tab displays the currently saved domain on load (and after saving) so the admin can confirm what is configured.",
+        "If the backend update fails (e.g., not authenticated), the UI shows an error toast and does not falsely indicate the domain was saved."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Add clear English-only guidance in the Admin \"Domain\" tab explaining what the custom domain setting does and what manual steps are required to actually use the new domain (DNS + IC/custom domain setup), including that the existing `uthaansewasamiti-1eg.caffeine.xyz` URL will still work unless a domain is properly pointed.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "I want to host it with new name"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The Domain tab includes a short, readable set of steps describing that purchasing/controlling the domain and configuring DNS is required.",
+        "The text explicitly mentions the current live address `uthaansewasamiti-1eg.caffeine.xyz` as the existing working URL and clarifies that saving a domain in the dashboard alone does not automatically change hosting.",
+        "All new user-facing guidance text is in English."
+      ]
+    }
+  ],
+  "constraints": [
+    "Backend must remain a single Motoko actor in backend/main.mo (no additional backend services).",
+    "Do not modify any files under frontend/src/components/ui or any paths listed in frontend.immutablePaths.",
+    "Do not add third-party authentication providers; Internet Identity remains the only supported auth mechanism."
+  ],
+  "nonGoals": [
+    "Buying a domain name for the user or integrating with a domain registrar.",
+    "Automatically configuring DNS records or completing IC boundary-node/custom-domain registration on the user’s behalf.",
+    "Changing the live Caffeine subdomain automatically (e.g., renaming `uthaansewasamiti-1eg.caffeine.xyz`) without a redeploy/hosting-level change."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
+  }
+}

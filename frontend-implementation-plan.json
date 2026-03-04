@@ -1,0 +1,45 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Admin custom domain persistence and guidance",
+  "requirements": [
+    {
+      "id": "REQ-2",
+      "summary": "Persist validated custom domain from the Admin Dashboard Domain tab and display the saved value.",
+      "acceptanceCriteria": [
+        "Clicking \"Validate Domain\" still validates using the existing `normalizeDomain` + `validateCustomDomain` logic.",
+        "If validation passes, the UI calls the backend to persist the domain and shows a success toast confirming it was saved.",
+        "The Domain tab displays the currently saved domain on load (and after saving) so the admin can confirm what is configured.",
+        "If the backend update fails (e.g., not authenticated), the UI shows an error toast and does not falsely indicate the domain was saved."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add React Query hooks for the custom domain backend capabilities: a query hook that retrieves the currently saved domain (via backend `getCustomDomain`) and a mutation hook to persist the domain (via backend `setCustomDomain`), invalidating/refetching the custom-domain query on success. Use the existing actor from `useActor` and handle authorization failures by surfacing errors to the caller. (Selected component: authorization — rely on the existing authenticated actor behavior; verify the component's usage instructions before implementing.)"
+        },
+        {
+          "path": "frontend/src/pages/AdminPage.tsx",
+          "operation": "modify",
+          "description": "Update the Domain tab to (1) load and display the currently saved domain using the new query hook, (2) keep the existing `normalizeDomain` + `validateCustomDomain` validation flow on \"Validate Domain\", and (3) on successful validation, call the new mutation hook to persist the normalized domain and show a success toast only after the save succeeds. If the save throws (e.g., authorization), show an error toast and keep UI state consistent (do not indicate the domain is saved; do not update any 'saved' display until the refetch reflects it). (Selected component: authorization — ensure calls are made with the authenticated actor and authorization errors are handled gracefully; verify the component's usage instructions before implementing.)"
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Add clear English-only guidance in the Admin Domain tab describing what the setting does and the manual steps required to use a custom domain.",
+      "acceptanceCriteria": [
+        "The Domain tab includes a short, readable set of steps describing that purchasing/controlling the domain and configuring DNS is required.",
+        "The text explicitly mentions the current live address `uthaansewasamiti-1eg.caffeine.xyz` as the existing working URL and clarifies that saving a domain in the dashboard alone does not automatically change hosting.",
+        "All new user-facing guidance text is in English."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/AdminPage.tsx",
+          "operation": "modify",
+          "description": "In the Domain tab UI, add an English-only guidance section (do not wrap in the bilingual `t()` helper) explaining: what saving the custom domain does (stores a value for reference/config), that the current working URL is `uthaansewasamiti-1eg.caffeine.xyz` and will continue to work unless the custom domain is correctly pointed, and the required manual steps (own the domain, set DNS records, complete IC/boundary-node custom domain setup, then verify). Keep the copy short, readable, and clearly state that saving in the dashboard alone does not change hosting."
+        }
+      ]
+    }
+  ]
+}

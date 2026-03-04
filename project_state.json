@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "Website for Uthaan Sewa Samiti is live at uthaansewasamiti-1eg.caffeine.xyz; user wants to host it under a new name (custom domain/renaming).",
+  "architectural_notes": [],
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-update-the-admin-dashboard-domain-tab-to-save-the-validated-domain-to-the-backend-and-to-show-the-currently-saved-domain-value",
+      "title": "Update the Admin Dashboard \"Domain\" tab to save the validated domain to the backend and to show the currently saved domain value.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-clear-english-only-guidance-in-the-admin-domain-tab-explaining-what-the-custom-domain-setting-does-and-what-manual-steps-are-required-to-actually-use-the-new-domain-dns-ic-custom-domain-setup-including-that-the-existing-uthaansewasamiti-1eg-caffeine-xyz-url-will-still-work-unless-a-domain-is-properly-pointed",
+      "title": "Add clear English-only guidance in the Admin \"Domain\" tab explaining what the custom domain setting does and what manual steps are required to actually use the new domain (DNS + IC/custom domain setup), including that the existing `uthaansewasamiti-1eg.caffeine.xyz` URL will still work unless a domain is properly pointed.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Host the website under a new name (set up a new/custom domain and point hosting to it).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Add a persistent \"custom domain / site name\" setting in the backend that an admin can save and later retrieve (e.g., `customDomain : ?Text`).",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Uthaan Sewa Samiti",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}
