@@ -21,7 +21,7 @@ export function validateCustomDomain(domain: string): DomainValidationResult {
   if (!trimmedDomain) {
     return {
       isValid: false,
-      message: 'Domain name cannot be empty. Example: www.example.org',
+      message: "Domain name cannot be empty. Example: www.example.org",
     };
   }
 
@@ -29,14 +29,15 @@ export function validateCustomDomain(domain: string): DomainValidationResult {
   if (trimmedDomain.length < 5) {
     return {
       isValid: false,
-      message: 'Domain name must be at least 5 characters long. Example: www.example.org',
+      message:
+        "Domain name must be at least 5 characters long. Example: www.example.org",
     };
   }
 
   if (trimmedDomain.length > 253) {
     return {
       isValid: false,
-      message: 'Domain name must not exceed 253 characters.',
+      message: "Domain name must not exceed 253 characters.",
     };
   }
 
@@ -45,28 +46,31 @@ export function validateCustomDomain(domain: string): DomainValidationResult {
   // - Start and end with alphanumeric character
   // - Contain only alphanumeric characters and hyphens
   // - Be 1-63 characters long
-  const domainRegex = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)*[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/i;
+  const domainRegex =
+    /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)*[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/i;
 
   if (!domainRegex.test(trimmedDomain)) {
     return {
       isValid: false,
-      message: 'Invalid domain format. Domain must contain only letters, numbers, hyphens, and dots. Labels cannot start or end with hyphens. Example: www.example.org',
+      message:
+        "Invalid domain format. Domain must contain only letters, numbers, hyphens, and dots. Labels cannot start or end with hyphens. Example: www.example.org",
     };
   }
 
   // Check that domain has at least one dot (TLD required)
-  if (!trimmedDomain.includes('.')) {
+  if (!trimmedDomain.includes(".")) {
     return {
       isValid: false,
-      message: 'Domain must include a top-level domain (TLD). Example: www.example.org',
+      message:
+        "Domain must include a top-level domain (TLD). Example: www.example.org",
     };
   }
 
   // Check for consecutive dots
-  if (trimmedDomain.includes('..')) {
+  if (trimmedDomain.includes("..")) {
     return {
       isValid: false,
-      message: 'Domain cannot contain consecutive dots.',
+      message: "Domain cannot contain consecutive dots.",
     };
   }
 
@@ -74,14 +78,14 @@ export function validateCustomDomain(domain: string): DomainValidationResult {
   if (/^[.-]|[.-]$/.test(trimmedDomain)) {
     return {
       isValid: false,
-      message: 'Domain cannot start or end with a dot or hyphen.',
+      message: "Domain cannot start or end with a dot or hyphen.",
     };
   }
 
   // All checks passed
   return {
     isValid: true,
-    message: 'Valid domain name.',
+    message: "Valid domain name.",
   };
 }
 

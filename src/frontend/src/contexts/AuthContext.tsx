@@ -1,78 +1,114 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import type React from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
+import type { backendInterface } from "../backend";
+import { createActorWithConfig } from "../config";
 
 interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
+  sessionToken: string | null;
   login: (username: string, password: string) => Promise<boolean>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Utility: SHA-256 hash
+export async function hashText(text: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(text.toLowerCase().trim());
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+// Module-level actor cache (avoids re-creating on every call)
+let cachedActor: backendInterface | null = null;
+async function getAnonActor(): Promise<backendInterface> {
+  if (!cachedActor) {
+    cachedActor = (await createActorWithConfig()) as backendInterface;
+  }
+  return cachedActor;
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [sessionToken, setSessionToken] = useState<string | null>(null);
+  // Keep a ref so login/logout can use it without stale closure
+  const sessionTokenRef = useRef<string | null>(null);
+
+  const updateSessionToken = (token: string | null) => {
+    sessionTokenRef.current = token;
+    setSessionToken(token);
+  };
 
   useEffect(() => {
-    // Check if user is already logged in with resilient storage access
-    try {
-      const authToken = sessionStorage.getItem('admin_auth');
-      if (authToken === 'true') {
-        // Validate that credentials still exist
-        const storedCreds = localStorage.getItem('admin_credentials');
-        if (storedCreds) {
-          setIsAuthenticated(true);
-        } else {
-          // Clear invalid session
-          sessionStorage.removeItem('admin_auth');
+    const restoreSession = async () => {
+      try {
+        const storedToken = sessionStorage.getItem("admin_session_token");
+        if (storedToken) {
+          const actor = await getAnonActor();
+          const valid = await actor.validateAdminSession(storedToken);
+          if (valid) {
+            sessionTokenRef.current = storedToken;
+            setSessionToken(storedToken);
+            setIsAuthenticated(true);
+          } else {
+            sessionStorage.removeItem("admin_session_token");
+          }
         }
+      } catch (error) {
+        console.error("Session restore error:", error);
+        sessionStorage.removeItem("admin_session_token");
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error('Error accessing storage:', error);
-      // Gracefully handle storage access failures
-    }
-    setIsLoading(false);
-  }, []);
+    };
 
-  const login = async (username: string, password: string): Promise<boolean> => {
+    restoreSession();
+  }, []); // intentionally empty — runs once on mount
+
+  const login = async (
+    username: string,
+    password: string,
+  ): Promise<boolean> => {
     try {
-      // Verify credentials against stored admin credentials
-      const storedCreds = localStorage.getItem('admin_credentials');
-      
-      if (!storedCreds) {
-        return false;
-      }
-
-      const { username: storedUsername, passwordHash } = JSON.parse(storedCreds);
-      
-      // Hash the input password and compare
-      const inputHash = await hashPassword(password);
-      
-      if (username === storedUsername && inputHash === passwordHash) {
-        sessionStorage.setItem('admin_auth', 'true');
+      const passwordHash = await hashText(password);
+      const actor = await getAnonActor();
+      const token = await actor.adminLogin(username, passwordHash);
+      if (token) {
+        sessionStorage.setItem("admin_session_token", token);
+        updateSessionToken(token);
         setIsAuthenticated(true);
         return true;
       }
     } catch (error) {
-      console.error('Login error:', error);
+      console.error("Login error:", error);
     }
-    
     return false;
   };
 
-  const logout = () => {
+  const logout = async (): Promise<void> => {
     try {
-      sessionStorage.removeItem('admin_auth');
-      setIsAuthenticated(false);
+      const currentToken = sessionTokenRef.current;
+      if (currentToken) {
+        const actor = await getAnonActor();
+        await actor.adminLogout(currentToken);
+      }
     } catch (error) {
-      console.error('Logout error:', error);
-      // Force state update even if storage fails
+      console.error("Logout error:", error);
+    } finally {
+      sessionStorage.removeItem("admin_session_token");
+      updateSessionToken(null);
       setIsAuthenticated(false);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isLoading, login, logout }}>
+    <AuthContext.Provider
+      value={{ isAuthenticated, isLoading, sessionToken, login, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -81,32 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
+    throw new Error("useAuth must be used within AuthProvider");
   }
   return context;
-}
-
-// Cryptographic hash function using Web Crypto API
-async function hashPassword(password: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-// Function to create admin credentials on first-time setup
-export async function createAdminCredentials(username: string, password: string): Promise<void> {
-  const passwordHash = await hashPassword(password);
-  localStorage.setItem('admin_credentials', JSON.stringify({ username, passwordHash }));
-}
-
-// Check if admin credentials already exist
-export function hasAdminCredentials(): boolean {
-  try {
-    return !!localStorage.getItem('admin_credentials');
-  } catch (error) {
-    console.error('Error checking admin credentials:', error);
-    return false;
-  }
 }

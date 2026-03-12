@@ -1,47 +1,77 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from '@tanstack/react-router';
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Shield, Globe } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import OrganizationDetailsEditor from '../components/admin/OrganizationDetailsEditor';
-import AboutUsEditor from '../components/admin/AboutUsEditor';
-import ProjectsManager from '../components/admin/ProjectsManager';
-import GalleryManager from '../components/admin/GalleryManager';
-import HomePageImagesManager from '../components/admin/HomePageImagesManager';
-import ContactMessagesViewer from '../components/admin/ContactMessagesViewer';
-import { useAuth } from '../contexts/AuthContext';
-import { useLanguage } from '../contexts/LanguageContext';
-import { validateCustomDomain, normalizeDomain } from '../utils/domainValidation';
-import { toast } from 'sonner';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useNavigate } from "@tanstack/react-router";
+import { AlertCircle, CheckCircle2, Globe, Shield } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import AboutUsEditor from "../components/admin/AboutUsEditor";
+import ContactMessagesViewer from "../components/admin/ContactMessagesViewer";
+import DonationManager from "../components/admin/DonationManager";
+import GalleryManager from "../components/admin/GalleryManager";
+import HomePageImagesManager from "../components/admin/HomePageImagesManager";
+import MembersManager from "../components/admin/MembersManager";
+import OrganizationDetailsEditor from "../components/admin/OrganizationDetailsEditor";
+import ProjectsManager from "../components/admin/ProjectsManager";
+import { useAuth } from "../contexts/AuthContext";
+import { useLanguage } from "../contexts/LanguageContext";
+import { useGetCustomDomain, useSetCustomDomain } from "../hooks/useQueries";
+import {
+  normalizeDomain,
+  validateCustomDomain,
+} from "../utils/domainValidation";
 
 export default function AdminPage() {
   const { isAuthenticated, isLoading } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
-  const [customDomain, setCustomDomain] = useState('');
-  const [domainError, setDomainError] = useState('');
+  const [customDomain, setCustomDomain] = useState("");
+  const [domainError, setDomainError] = useState("");
+
+  const { data: savedDomain, isLoading: domainLoading } = useGetCustomDomain();
+  const setDomainMutation = useSetCustomDomain();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      navigate({ to: '/admin-login' });
+      navigate({ to: "/admin-login" });
     }
   }, [isAuthenticated, isLoading, navigate]);
 
-  const handleDomainValidation = () => {
+  useEffect(() => {
+    if (savedDomain) {
+      setCustomDomain(savedDomain);
+    }
+  }, [savedDomain]);
+
+  const handleDomainValidation = async () => {
     const normalized = normalizeDomain(customDomain);
     const validation = validateCustomDomain(normalized);
-    
+
     if (!validation.isValid) {
       setDomainError(validation.message);
       toast.error(validation.message);
     } else {
-      setDomainError('');
-      toast.success(`Valid domain: ${normalized}`);
-      // Here you would typically save the domain to backend or configuration
-      console.log('Valid domain:', normalized);
+      setDomainError("");
+
+      try {
+        await setDomainMutation.mutateAsync(normalized);
+        toast.success(`Domain saved successfully: ${normalized}`);
+      } catch (error: unknown) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "Failed to save domain. Please ensure you are authenticated.";
+        setDomainError(errorMessage);
+        toast.error(errorMessage);
+      }
     }
   };
 
@@ -49,8 +79,10 @@ export default function AdminPage() {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-          <p className="mt-4 text-muted-foreground">{t('Loading...', 'लोड हो रहा है...')}</p>
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+          <p className="mt-4 text-muted-foreground">
+            {t("Loading...", "लोड हो रहा है...")}
+          </p>
         </div>
       </div>
     );
@@ -64,9 +96,12 @@ export default function AdminPage() {
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
               <Shield className="h-8 w-8 text-destructive" />
             </div>
-            <CardTitle>{t('Access Denied', 'पहुंच अस्वीकृत')}</CardTitle>
+            <CardTitle>{t("Access Denied", "पहुंच अस्वीकृत")}</CardTitle>
             <CardDescription>
-              {t('You need to be logged in to access the admin panel', 'व्यवस्थापक पैनल तक पहुंचने के लिए आपको लॉग इन होना होगा')}
+              {t(
+                "You need to be logged in to access the admin panel",
+                "व्यवस्थापक पैनल तक पहुंचने के लिए आपको लॉग इन होना होगा",
+              )}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -77,21 +112,34 @@ export default function AdminPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">{t('Admin Dashboard', 'व्यवस्थापक डैशबोर्ड')}</h1>
+        <h1 className="text-3xl font-bold">
+          {t("Admin Dashboard", "व्यवस्थापक डैशबोर्ड")}
+        </h1>
         <p className="text-muted-foreground">
-          {t('Manage your organization content', 'अपने संगठन की सामग्री प्रबंधित करें')}
+          {t(
+            "Manage your organization content",
+            "अपने संगठन की सामग्री प्रबंधित करें",
+          )}
         </p>
       </div>
 
       <Tabs defaultValue="organization" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 lg:grid-cols-7">
-          <TabsTrigger value="organization">{t('Organization', 'संगठन')}</TabsTrigger>
-          <TabsTrigger value="about">{t('About', 'हमारे बारे में')}</TabsTrigger>
-          <TabsTrigger value="projects">{t('Projects', 'परियोजनाएं')}</TabsTrigger>
-          <TabsTrigger value="homepage">{t('Home Images', 'होम छवियां')}</TabsTrigger>
-          <TabsTrigger value="gallery">{t('Gallery', 'गैलरी')}</TabsTrigger>
-          <TabsTrigger value="messages">{t('Messages', 'संदेश')}</TabsTrigger>
-          <TabsTrigger value="domain">{t('Domain', 'डोमेन')}</TabsTrigger>
+        <TabsList className="flex flex-wrap gap-1 h-auto">
+          <TabsTrigger value="organization">
+            {t("Organization", "संगठन")}
+          </TabsTrigger>
+          <TabsTrigger value="about">{t("About", "हमारे बारे में")}</TabsTrigger>
+          <TabsTrigger value="projects">
+            {t("Projects", "परियोजनाएं")}
+          </TabsTrigger>
+          <TabsTrigger value="homepage">
+            {t("Home Images", "होम छवियां")}
+          </TabsTrigger>
+          <TabsTrigger value="gallery">{t("Gallery", "गैलरी")}</TabsTrigger>
+          <TabsTrigger value="members">{t("Members", "सदस्य")}</TabsTrigger>
+          <TabsTrigger value="donation">{t("Donation", "दान")}</TabsTrigger>
+          <TabsTrigger value="messages">{t("Messages", "संदेश")}</TabsTrigger>
+          <TabsTrigger value="domain">{t("Domain", "डोमेन")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="organization">
@@ -114,6 +162,14 @@ export default function AdminPage() {
           <GalleryManager />
         </TabsContent>
 
+        <TabsContent value="members">
+          <MembersManager />
+        </TabsContent>
+
+        <TabsContent value="donation">
+          <DonationManager />
+        </TabsContent>
+
         <TabsContent value="messages">
           <ContactMessagesViewer />
         </TabsContent>
@@ -123,43 +179,102 @@ export default function AdminPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Globe className="h-5 w-5" />
-                {t('Custom Domain Configuration', 'कस्टम डोमेन कॉन्फ़िगरेशन')}
+                Custom Domain Configuration
               </CardTitle>
               <CardDescription>
-                {t(
-                  'Configure a custom domain for your website. Enter a fully qualified domain name.',
-                  'अपनी वेबसाइट के लिए एक कस्टम डोमेन कॉन्फ़िगर करें। एक पूर्ण योग्य डोमेन नाम दर्ज करें।'
-                )}
+                Configure a custom domain for your website. This setting stores
+                your preferred domain name for reference.
               </CardDescription>
             </CardHeader>
-            <div className="p-6 space-y-4">
+            <div className="p-6 space-y-6">
+              {domainLoading ? (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                  Loading saved domain...
+                </div>
+              ) : savedDomain ? (
+                <Alert>
+                  <CheckCircle2 className="h-4 w-4" />
+                  <AlertDescription>
+                    <strong>Currently saved domain:</strong> {savedDomain}
+                  </AlertDescription>
+                </Alert>
+              ) : (
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    No custom domain configured yet.
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              <div className="rounded-lg border bg-muted/50 p-4 space-y-3">
+                <h3 className="font-semibold text-sm">Important Information</h3>
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  <p>
+                    <strong>Your current working URL:</strong>{" "}
+                    <code className="bg-background px-1.5 py-0.5 rounded">
+                      uthaansewasamiti-1eg.caffeine.xyz
+                    </code>
+                  </p>
+                  <p>
+                    This URL will continue to work unless you complete the full
+                    custom domain setup process.
+                  </p>
+                  <p className="font-medium text-foreground mt-3">
+                    To use a custom domain, you must:
+                  </p>
+                  <ol className="list-decimal list-inside space-y-1 ml-2">
+                    <li>
+                      Purchase and own the domain name from a domain registrar
+                    </li>
+                    <li>
+                      Configure DNS records to point to the Internet Computer
+                      boundary nodes
+                    </li>
+                    <li>Complete the IC custom domain registration process</li>
+                    <li>
+                      Verify the domain is correctly pointed and accessible
+                    </li>
+                  </ol>
+                </div>
+              </div>
+
               <div className="space-y-2">
-                <Label htmlFor="customDomain">
-                  {t('Domain Name', 'डोमेन नाम')}
-                </Label>
+                <Label htmlFor="customDomain">Domain Name</Label>
                 <Input
                   id="customDomain"
+                  data-ocid="domain.input"
                   type="text"
                   placeholder="www.example.org"
                   value={customDomain}
                   onChange={(e) => {
                     setCustomDomain(e.target.value);
-                    setDomainError('');
+                    setDomainError("");
                   }}
-                  className={domainError ? 'border-destructive' : ''}
+                  className={domainError ? "border-destructive" : ""}
                 />
                 {domainError && (
-                  <p className="text-sm text-destructive">{domainError}</p>
+                  <p
+                    className="text-sm text-destructive"
+                    data-ocid="domain.error_state"
+                  >
+                    {domainError}
+                  </p>
                 )}
                 <p className="text-sm text-muted-foreground">
-                  {t(
-                    'Example: www.uthaansewasamiti.org or uthaansewasamiti.org',
-                    'उदाहरण: www.uthaansewasamiti.org या uthaansewasamiti.org'
-                  )}
+                  Example: www.uthaansewasamiti.org or uthaansewasamiti.org
                 </p>
               </div>
-              <Button onClick={handleDomainValidation}>
-                {t('Validate Domain', 'डोमेन सत्यापित करें')}
+
+              <Button
+                onClick={handleDomainValidation}
+                disabled={setDomainMutation.isPending}
+                data-ocid="domain.save_button"
+              >
+                {setDomainMutation.isPending
+                  ? "Saving..."
+                  : "Validate & Save Domain"}
               </Button>
             </div>
           </Card>

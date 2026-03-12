@@ -38,14 +38,35 @@ export interface GalleryImage {
     caption: BilingualText;
     image: ExternalBlob;
 }
+export interface Member {
+    id: string;
+    joinDate: string;
+    name: BilingualText;
+    role: BilingualText;
+    memberType: MemberType;
+    photo?: ExternalBlob;
+}
 export interface Project {
     id: string;
     title: BilingualText;
     description: BilingualText;
     image?: ExternalBlob;
 }
+export interface DonationDetails {
+    accountNo: string;
+    ifsc: string;
+    description: BilingualText;
+    bankName: string;
+    upiId: string;
+    accountHolder: string;
+}
 export interface UserProfile {
     name: string;
+}
+export enum MemberType {
+    mainMember = "mainMember",
+    coreCommittee = "coreCommittee",
+    ordinaryMember = "ordinaryMember"
 }
 export enum UserRole {
     admin = "admin",
@@ -54,25 +75,42 @@ export enum UserRole {
 }
 export interface backendInterface {
     addContactMessage(message: ContactMessage): Promise<void>;
-    addGalleryImage(image: GalleryImage): Promise<void>;
-    addHomepageImage(image: GalleryImage): Promise<void>;
-    addProject(project: Project): Promise<void>;
+    addGalleryImage(sessionToken: string, image: GalleryImage): Promise<void>;
+    addHomepageImage(sessionToken: string, image: GalleryImage): Promise<void>;
+    addMember(sessionToken: string, member: Member): Promise<void>;
+    addProject(sessionToken: string, project: Project): Promise<void>;
+    adminLogin(username: string, passwordHash: string): Promise<string>;
+    adminLogout(sessionToken: string): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-    deleteGalleryImage(id: string): Promise<void>;
-    deleteHomepageImage(id: string): Promise<void>;
-    deleteProject(id: string): Promise<void>;
+    deleteGalleryImage(sessionToken: string, id: string): Promise<void>;
+    deleteHomepageImage(sessionToken: string, id: string): Promise<void>;
+    deleteMember(sessionToken: string, id: string): Promise<void>;
+    deleteProject(sessionToken: string, id: string): Promise<void>;
     getAboutUsContent(): Promise<BilingualText>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
-    getContactMessages(): Promise<Array<ContactMessage>>;
+    getContactMessages(sessionToken: string): Promise<Array<ContactMessage>>;
+    getCustomDomain(): Promise<string | null>;
+    getDonationDetails(): Promise<DonationDetails>;
     getGalleryImages(): Promise<Array<GalleryImage>>;
     getHomepageImages(): Promise<Array<GalleryImage>>;
+    getMembers(): Promise<Array<Member>>;
     getOrganizationDetails(): Promise<OrganizationDetails>;
     getProjects(): Promise<Array<Project>>;
+    getSecurityQuestion(username: string): Promise<string>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
+    isAdminSetup(): Promise<boolean>;
     isCallerAdmin(): Promise<boolean>;
+    resetAdminPassword(resetToken: string, newPasswordHash: string): Promise<void>;
+    resetAdminCredentials(resetToken: string, newUsername: string, newPasswordHash: string): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
-    updateAboutUsContent(content: BilingualText): Promise<void>;
-    updateOrganizationDetails(details: OrganizationDetails): Promise<void>;
-    updateProject(project: Project): Promise<void>;
+    setCustomDomain(sessionToken: string, domain: string): Promise<void>;
+    setupAdmin(username: string, passwordHash: string, securityQuestion: string, securityAnswerHash: string): Promise<void>;
+    updateAboutUsContent(sessionToken: string, content: BilingualText): Promise<void>;
+    updateDonationDetails(sessionToken: string, details: DonationDetails): Promise<void>;
+    updateMember(sessionToken: string, member: Member): Promise<void>;
+    updateOrganizationDetails(sessionToken: string, details: OrganizationDetails): Promise<void>;
+    updateProject(sessionToken: string, project: Project): Promise<void>;
+    validateAdminSession(sessionToken: string): Promise<boolean>;
+    verifySecurityAnswer(username: string, answerHash: string): Promise<string>;
 }

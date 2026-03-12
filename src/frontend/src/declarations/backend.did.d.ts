@@ -17,12 +17,31 @@ export interface ContactMessage {
   'email' : string,
   'message' : string,
 }
+export interface DonationDetails {
+  'accountNo' : string,
+  'ifsc' : string,
+  'description' : BilingualText,
+  'bankName' : string,
+  'upiId' : string,
+  'accountHolder' : string,
+}
 export type ExternalBlob = Uint8Array;
 export interface GalleryImage {
   'id' : string,
   'caption' : BilingualText,
   'image' : ExternalBlob,
 }
+export interface Member {
+  'id' : string,
+  'joinDate' : string,
+  'name' : BilingualText,
+  'role' : BilingualText,
+  'memberType' : MemberType,
+  'photo' : [] | [ExternalBlob],
+}
+export type MemberType = { 'mainMember' : null } |
+  { 'coreCommittee' : null } |
+  { 'ordinaryMember' : null };
 export interface OrganizationDetails {
   'mission' : BilingualText,
   'logo' : [] | [ExternalBlob],
@@ -71,27 +90,48 @@ export interface _SERVICE {
   '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'addContactMessage' : ActorMethod<[ContactMessage], undefined>,
-  'addGalleryImage' : ActorMethod<[GalleryImage], undefined>,
-  'addHomepageImage' : ActorMethod<[GalleryImage], undefined>,
-  'addProject' : ActorMethod<[Project], undefined>,
+  'addGalleryImage' : ActorMethod<[string, GalleryImage], undefined>,
+  'addHomepageImage' : ActorMethod<[string, GalleryImage], undefined>,
+  'addMember' : ActorMethod<[string, Member], undefined>,
+  'addProject' : ActorMethod<[string, Project], undefined>,
+  'adminLogin' : ActorMethod<[string, string], string>,
+  'adminLogout' : ActorMethod<[string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
-  'deleteGalleryImage' : ActorMethod<[string], undefined>,
-  'deleteHomepageImage' : ActorMethod<[string], undefined>,
-  'deleteProject' : ActorMethod<[string], undefined>,
+  'deleteGalleryImage' : ActorMethod<[string, string], undefined>,
+  'deleteHomepageImage' : ActorMethod<[string, string], undefined>,
+  'deleteMember' : ActorMethod<[string, string], undefined>,
+  'deleteProject' : ActorMethod<[string, string], undefined>,
   'getAboutUsContent' : ActorMethod<[], BilingualText>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
-  'getContactMessages' : ActorMethod<[], Array<ContactMessage>>,
+  'getContactMessages' : ActorMethod<[string], Array<ContactMessage>>,
+  'getCustomDomain' : ActorMethod<[], [] | [string]>,
+  'getDonationDetails' : ActorMethod<[], DonationDetails>,
   'getGalleryImages' : ActorMethod<[], Array<GalleryImage>>,
   'getHomepageImages' : ActorMethod<[], Array<GalleryImage>>,
+  'getMembers' : ActorMethod<[], Array<Member>>,
   'getOrganizationDetails' : ActorMethod<[], OrganizationDetails>,
   'getProjects' : ActorMethod<[], Array<Project>>,
+  'getSecurityQuestion' : ActorMethod<[string], string>,
+  'getAdminSecurityQuestionWithoutId' : ActorMethod<[], string>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'isAdminSetup' : ActorMethod<[], boolean>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
+  'resetAdminPassword' : ActorMethod<[string, string], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
-  'updateAboutUsContent' : ActorMethod<[BilingualText], undefined>,
-  'updateOrganizationDetails' : ActorMethod<[OrganizationDetails], undefined>,
-  'updateProject' : ActorMethod<[Project], undefined>,
+  'setCustomDomain' : ActorMethod<[string, string], undefined>,
+  'setupAdmin' : ActorMethod<[string, string, string, string], undefined>,
+  'updateAboutUsContent' : ActorMethod<[string, BilingualText], undefined>,
+  'updateDonationDetails' : ActorMethod<[string, DonationDetails], undefined>,
+  'updateMember' : ActorMethod<[string, Member], undefined>,
+  'updateOrganizationDetails' : ActorMethod<
+    [string, OrganizationDetails],
+    undefined
+  >,
+  'updateProject' : ActorMethod<[string, Project], undefined>,
+  'validateAdminSession' : ActorMethod<[string], boolean>,
+  'verifySecurityAnswer' : ActorMethod<[string, string], string>,
+  'verifySecurityAnswerWithoutId' : ActorMethod<[string], string>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

@@ -1,53 +1,93 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useGetHomepageImages, useAddHomepageImage, useDeleteHomepageImage } from '../../hooks/useQueries';
-import { toast } from 'sonner';
-import { Plus, Trash2, Upload } from 'lucide-react';
-import { ExternalBlob, type GalleryImage } from '../../backend';
-import { useLanguage } from '../../contexts/LanguageContext';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Loader2, Plus, Trash2, Upload } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { ExternalBlob, type GalleryImage } from "../../backend";
+import { useLanguage } from "../../contexts/LanguageContext";
+import {
+  useAddHomepageImage,
+  useDeleteHomepageImage,
+  useGetHomepageImages,
+} from "../../hooks/useQueries";
+
+const MAX_FILE_SIZE_MB = 5;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 export default function HomePageImagesManager() {
   const { data: homepageImages, isLoading } = useGetHomepageImages();
   const addImage = useAddHomepageImage();
   const deleteImage = useDeleteHomepageImage();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [captionEnglish, setCaptionEnglish] = useState('');
-  const [captionHindi, setCaptionHindi] = useState('');
+  const [captionEnglish, setCaptionEnglish] = useState("");
+  const [captionHindi, setCaptionHindi] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [isUploading, setIsUploading] = useState(false);
 
   const resetForm = () => {
-    setCaptionEnglish('');
-    setCaptionHindi('');
+    setCaptionEnglish("");
+    setCaptionHindi("");
     setImageFile(null);
     setImagePreview(null);
+    setUploadProgress(0);
+    setIsUploading(false);
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      setImagePreview(URL.createObjectURL(file));
+    if (!file) return;
+
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      toast.error(
+        t(
+          `Image is too large. Maximum size is ${MAX_FILE_SIZE_MB}MB.`,
+          `छवि बहुत बड़ी है। अधिकतम आकार ${MAX_FILE_SIZE_MB}MB है।`,
+        ),
+      );
+      return;
     }
+
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!imageFile) {
-      toast.error('Please select an image');
+      toast.error(t("Please select an image", "कृपया एक छवि चुनें"));
       return;
     }
 
+    setIsUploading(true);
+    setUploadProgress(0);
+
     try {
       const arrayBuffer = await imageFile.arrayBuffer();
-      const imageBlob = ExternalBlob.fromBytes(new Uint8Array(arrayBuffer));
+      const imageBlob = ExternalBlob.fromBytes(
+        new Uint8Array(arrayBuffer),
+      ).withUploadProgress((pct) => setUploadProgress(Math.round(pct)));
 
       const homepageImage: GalleryImage = {
         id: Date.now().toString(),
@@ -59,33 +99,52 @@ export default function HomePageImagesManager() {
       };
 
       await addImage.mutateAsync(homepageImage);
-      toast.success('Image added successfully!');
+      toast.success(t("Image added to home page!", "छवि होम पेज पर जोड़ी गई!"));
       setIsDialogOpen(false);
       resetForm();
-    } catch (error) {
-      toast.error('Failed to add image');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      toast.error(
+        t(`Failed to upload image: ${msg}`, `छवि अपलोड में विफल: ${msg}`),
+      );
+    } finally {
+      setIsUploading(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this image?')) {
+    if (
+      !confirm(
+        t(
+          "Are you sure you want to delete this image?",
+          "क्या आप वाकई इस छवि को हटाना चाहते हैं?",
+        ),
+      )
+    ) {
       return;
     }
 
     try {
       await deleteImage.mutateAsync(id);
-      toast.success('Image deleted successfully!');
-    } catch (error) {
-      toast.error('Failed to delete image');
+      toast.success(t("Image deleted successfully!", "छवि सफलतापूर्वक हटाई गई!"));
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      toast.error(
+        t(`Failed to delete image: ${msg}`, `छवि हटाने में विफल: ${msg}`),
+      );
     }
   };
 
   const getCaption = (caption: { english: string; hindi: string }) => {
-    return language === 'english' ? caption.english : caption.hindi;
+    return language === "english" ? caption.english : caption.hindi;
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
   }
 
   return (
@@ -93,31 +152,49 @@ export default function HomePageImagesManager() {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>Home Page Images</CardTitle>
-            <CardDescription>Upload and manage images that appear on the home page</CardDescription>
+            <CardTitle>{t("Home Page Images", "होम पेज छवियां")}</CardTitle>
+            <CardDescription>
+              {t(
+                "Upload and manage images that appear on the home page",
+                "होम पेज पर दिखने वाली छवियां अपलोड और प्रबंधित करें",
+              )}
+            </CardDescription>
           </div>
-          <Dialog open={isDialogOpen} onOpenChange={(open) => {
-            setIsDialogOpen(open);
-            if (!open) resetForm();
-          }}>
+          <Dialog
+            open={isDialogOpen}
+            onOpenChange={(open) => {
+              if (isUploading) return;
+              setIsDialogOpen(open);
+              if (!open) resetForm();
+            }}
+          >
             <DialogTrigger asChild>
-              <Button>
+              <Button data-ocid="homepage.open_modal_button">
                 <Plus className="mr-2 h-4 w-4" />
-                Add Image
+                {t("Add Image", "छवि जोड़ें")}
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Add Home Page Image</DialogTitle>
+                <DialogTitle>
+                  {t("Add Home Page Image", "होम पेज छवि जोड़ें")}
+                </DialogTitle>
                 <DialogDescription>
-                  Upload an image and add captions in both languages
+                  {t(
+                    `Upload an image (max ${MAX_FILE_SIZE_MB}MB) for the home page`,
+                    `होम पेज के लिए एक छवि अपलोड करें (अधिकतम ${MAX_FILE_SIZE_MB}MB)`,
+                  )}
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Image</Label>
+                  <Label>{t("Image", "छवि")}</Label>
                   {imagePreview && (
-                    <img src={imagePreview} alt="Preview" className="h-48 w-full rounded-lg object-cover" />
+                    <img
+                      src={imagePreview}
+                      alt={t("Preview", "पूर्वावलोकन")}
+                      className="h-48 w-full rounded-lg object-cover"
+                    />
                   )}
                   <Input
                     id="homepage-image"
@@ -125,15 +202,42 @@ export default function HomePageImagesManager() {
                     accept="image/*"
                     onChange={handleImageChange}
                     className="hidden"
-                    required
+                    disabled={isUploading}
                   />
-                  <Label htmlFor="homepage-image" className="cursor-pointer">
-                    <div className="flex items-center justify-center gap-2 rounded-md border border-input bg-background px-4 py-8 hover:bg-accent">
+                  <Label
+                    htmlFor="homepage-image"
+                    className={
+                      isUploading
+                        ? "cursor-not-allowed opacity-50"
+                        : "cursor-pointer"
+                    }
+                  >
+                    <div
+                      className="flex items-center justify-center gap-2 rounded-md border border-input bg-background px-4 py-8 hover:bg-accent"
+                      data-ocid="homepage.dropzone"
+                    >
                       <Upload className="h-6 w-6" />
-                      <span>Click to upload image</span>
+                      <span>
+                        {imageFile
+                          ? imageFile.name
+                          : t(
+                              "Click to upload image",
+                              "छवि अपलोड करने के लिए क्लिक करें",
+                            )}
+                      </span>
                     </div>
                   </Label>
                 </div>
+
+                {isUploading && (
+                  <div className="space-y-1" data-ocid="homepage.loading_state">
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>{t("Uploading…", "अपलोड हो रहा है…")}</span>
+                      <span>{uploadProgress}%</span>
+                    </div>
+                    <Progress value={uploadProgress} className="h-2" />
+                  </div>
+                )}
 
                 <Tabs defaultValue="english" className="w-full">
                   <TabsList className="grid w-full grid-cols-2">
@@ -143,35 +247,59 @@ export default function HomePageImagesManager() {
 
                   <TabsContent value="english" className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="captionEnglish">Caption (Optional)</Label>
+                      <Label htmlFor="captionEnglish">
+                        {t("Caption (Optional)", "कैप्शन (वैकल्पिक)")}
+                      </Label>
                       <Input
                         id="captionEnglish"
+                        data-ocid="homepage.input"
                         value={captionEnglish}
                         onChange={(e) => setCaptionEnglish(e.target.value)}
                         placeholder="Enter caption in English"
+                        disabled={isUploading}
                       />
                     </div>
                   </TabsContent>
 
                   <TabsContent value="hindi" className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="captionHindi">Caption (Optional)</Label>
+                      <Label htmlFor="captionHindi">
+                        {t("Caption (Optional)", "कैप्शन (वैकल्पिक)")}
+                      </Label>
                       <Input
                         id="captionHindi"
                         value={captionHindi}
                         onChange={(e) => setCaptionHindi(e.target.value)}
                         placeholder="हिंदी में कैप्शन दर्ज करें"
+                        disabled={isUploading}
                       />
                     </div>
                   </TabsContent>
                 </Tabs>
 
                 <div className="flex gap-2">
-                  <Button type="submit" disabled={addImage.isPending}>
-                    {addImage.isPending ? 'Uploading...' : 'Upload'}
+                  <Button
+                    type="submit"
+                    disabled={isUploading || addImage.isPending}
+                    data-ocid="homepage.submit_button"
+                  >
+                    {isUploading || addImage.isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        {t("Uploading…", "अपलोड हो रहा है…")}
+                      </>
+                    ) : (
+                      t("Upload", "अपलोड करें")
+                    )}
                   </Button>
-                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                    Cancel
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsDialogOpen(false)}
+                    disabled={isUploading}
+                    data-ocid="homepage.cancel_button"
+                  >
+                    {t("Cancel", "रद्द करें")}
                   </Button>
                 </div>
               </form>
@@ -181,18 +309,30 @@ export default function HomePageImagesManager() {
       </CardHeader>
       <CardContent>
         {homepageImages && homepageImages.length > 0 ? (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {homepageImages.map((image) => (
-              <Card key={image.id} className="overflow-hidden">
+          <div
+            className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+            data-ocid="homepage.list"
+          >
+            {homepageImages.map((image, idx) => (
+              <Card
+                key={image.id}
+                className="overflow-hidden"
+                data-ocid={`homepage.item.${idx + 1}`}
+              >
                 <CardContent className="p-0">
                   <img
                     src={image.image.getDirectURL()}
-                    alt={getCaption(image.caption) || 'Home page image'}
+                    alt={
+                      getCaption(image.caption) ||
+                      t("Home page image", "होम पेज छवि")
+                    }
                     className="h-48 w-full object-cover"
                   />
                   <div className="p-4">
                     {image.caption && (
-                      <p className="mb-2 text-sm text-muted-foreground">{getCaption(image.caption)}</p>
+                      <p className="mb-2 text-sm text-muted-foreground">
+                        {getCaption(image.caption)}
+                      </p>
                     )}
                     <Button
                       size="sm"
@@ -200,9 +340,10 @@ export default function HomePageImagesManager() {
                       onClick={() => handleDelete(image.id)}
                       disabled={deleteImage.isPending}
                       className="w-full"
+                      data-ocid={`homepage.delete_button.${idx + 1}`}
                     >
                       <Trash2 className="mr-2 h-4 w-4" />
-                      Delete
+                      {t("Delete", "हटाएं")}
                     </Button>
                   </div>
                 </CardContent>
@@ -210,7 +351,12 @@ export default function HomePageImagesManager() {
             ))}
           </div>
         ) : (
-          <p className="text-center text-muted-foreground">No images on home page yet</p>
+          <p
+            className="text-center text-muted-foreground"
+            data-ocid="homepage.empty_state"
+          >
+            {t("No images on home page yet", "अभी तक होम पेज पर कोई छवियां नहीं")}
+          </p>
         )}
       </CardContent>
     </Card>

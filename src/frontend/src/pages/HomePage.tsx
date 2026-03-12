@@ -1,14 +1,19 @@
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { useNavigate } from '@tanstack/react-router';
-import { useGetOrganizationDetails, useGetHomepageImages } from '../hooks/useQueries';
-import { ArrowRight } from 'lucide-react';
-import { useLanguage } from '../contexts/LanguageContext';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { useNavigate } from "@tanstack/react-router";
+import { ArrowRight } from "lucide-react";
+import { useLanguage } from "../contexts/LanguageContext";
+import {
+  useGetHomepageImages,
+  useGetOrganizationDetails,
+} from "../hooks/useQueries";
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { data: orgDetails, isLoading: orgLoading } = useGetOrganizationDetails();
-  const { data: homepageImages, isLoading: homepageLoading } = useGetHomepageImages();
+  const { data: orgDetails, isLoading: orgLoading } =
+    useGetOrganizationDetails();
+  const { data: homepageImages, isLoading: homepageLoading } =
+    useGetHomepageImages();
   const { language, t } = useLanguage();
 
   const isLoading = orgLoading || homepageLoading;
@@ -17,8 +22,10 @@ export default function HomePage() {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-          <p className="mt-4 text-muted-foreground">{t('Loading...', 'लोड हो रहा है...')}</p>
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+          <p className="mt-4 text-muted-foreground">
+            {t("Loading...", "लोड हो रहा है...")}
+          </p>
         </div>
       </div>
     );
@@ -27,22 +34,26 @@ export default function HomePage() {
   const displayImages = homepageImages?.slice(0, 6) || [];
 
   const getName = () => {
-    if (!orgDetails?.name) return t('Uthaan Sewa Samiti', 'उत्थान सेवा समिति');
-    return language === 'english' ? orgDetails.name.english : orgDetails.name.hindi;
+    if (!orgDetails?.name) return t("Uthaan Sewa Samiti", "उत्थान सेवा समिति");
+    return language === "english"
+      ? orgDetails.name.english
+      : orgDetails.name.hindi;
   };
 
   const getMission = () => {
     if (!orgDetails?.mission) {
       return t(
-        'Dedicated to serving the community through various social initiatives.',
-        'विभिन्न सामाजिक पहलों के माध्यम से समुदाय की सेवा के लिए समर्पित।'
+        "Dedicated to serving the community through various social initiatives.",
+        "विभिन्न सामाजिक पहलों के माध्यम से समुदाय की सेवा के लिए समर्पित।",
       );
     }
-    return language === 'english' ? orgDetails.mission.english : orgDetails.mission.hindi;
+    return language === "english"
+      ? orgDetails.mission.english
+      : orgDetails.mission.hindi;
   };
 
   const getCaption = (caption: { english: string; hindi: string }) => {
-    return language === 'english' ? caption.english : caption.hindi;
+    return language === "english" ? caption.english : caption.hindi;
   };
 
   return (
@@ -59,11 +70,16 @@ export default function HomePage() {
                 {getMission()}
               </p>
               <div className="flex flex-wrap gap-4">
-                <Button size="lg" onClick={() => navigate({ to: '/projects' })}>
-                  {t('View Our Projects', 'हमारी परियोजनाएं देखें')} <ArrowRight className="ml-2 h-4 w-4" />
+                <Button size="lg" onClick={() => navigate({ to: "/projects" })}>
+                  {t("View Our Projects", "हमारी परियोजनाएं देखें")}{" "}
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
-                <Button size="lg" variant="outline" onClick={() => navigate({ to: '/contact' })}>
-                  {t('Get Involved', 'शामिल हों')}
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={() => navigate({ to: "/contact" })}
+                >
+                  {t("Get Involved", "शामिल हों")}
                 </Button>
               </div>
             </div>
@@ -76,7 +92,7 @@ export default function HomePage() {
                 />
               ) : (
                 <div className="mx-auto flex h-64 w-full max-w-md items-center justify-center rounded-lg bg-muted">
-                  <p className="text-muted-foreground">{t('Logo', 'लोगो')}</p>
+                  <p className="text-muted-foreground">{t("Logo", "लोगो")}</p>
                 </div>
               )}
             </div>
@@ -88,21 +104,29 @@ export default function HomePage() {
       <section className="py-16">
         <div className="container mx-auto px-4">
           <h2 className="mb-12 text-center text-3xl font-bold md:text-4xl">
-            {t('Recent Activities', 'हाल की गतिविधियाँ')}
+            {t("Recent Activities", "हाल की गतिविधियाँ")}
           </h2>
           {displayImages.length > 0 ? (
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
               {displayImages.map((image) => (
-                <Card key={image.id} className="overflow-hidden transition-shadow hover:shadow-lg">
+                <Card
+                  key={image.id}
+                  className="overflow-hidden transition-shadow hover:shadow-lg"
+                >
                   <CardContent className="p-0">
                     <img
                       src={image.image.getDirectURL()}
-                      alt={getCaption(image.caption) || t('Home page image', 'होम पेज छवि')}
+                      alt={
+                        getCaption(image.caption) ||
+                        t("Home page image", "होम पेज छवि")
+                      }
                       className="h-64 w-full object-cover"
                     />
                     {image.caption && (
                       <div className="p-4">
-                        <p className="text-sm text-muted-foreground">{getCaption(image.caption)}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {getCaption(image.caption)}
+                        </p>
                       </div>
                     )}
                   </CardContent>
@@ -112,10 +136,16 @@ export default function HomePage() {
           ) : (
             <div className="text-center">
               <p className="text-muted-foreground">
-                {t('No activity images available yet.', 'अभी तक कोई गतिविधि छवियाँ उपलब्ध नहीं हैं।')}
+                {t(
+                  "No activity images available yet.",
+                  "अभी तक कोई गतिविधि छवियाँ उपलब्ध नहीं हैं।",
+                )}
               </p>
               <p className="mt-2 text-sm text-muted-foreground">
-                {t('Add images to the home page through the admin panel.', 'व्यवस्थापक पैनल के माध्यम से होम पेज में छवियाँ जोड़ें।')}
+                {t(
+                  "Add images to the home page through the admin panel.",
+                  "व्यवस्थापक पैनल के माध्यम से होम पेज में छवियाँ जोड़ें।",
+                )}
               </p>
             </div>
           )}
@@ -126,16 +156,20 @@ export default function HomePage() {
       <section className="bg-primary py-16 text-primary-foreground">
         <div className="container mx-auto px-4 text-center">
           <h2 className="mb-4 text-3xl font-bold md:text-4xl">
-            {t('Make a Difference Today', 'आज ही बदलाव लाएं')}
+            {t("Make a Difference Today", "आज ही बदलाव लाएं")}
           </h2>
           <p className="mb-8 text-lg opacity-90">
             {t(
-              'Join us in our mission to bring positive change to our community.',
-              'हमारे समुदाय में सकारात्मक परिवर्तन लाने के हमारे मिशन में हमारे साथ जुड़ें।'
+              "Join us in our mission to bring positive change to our community.",
+              "हमारे समुदाय में सकारात्मक परिवर्तन लाने के हमारे मिशन में हमारे साथ जुड़ें।",
             )}
           </p>
-          <Button size="lg" variant="secondary" onClick={() => navigate({ to: '/contact' })}>
-            {t('Contact Us', 'हमसे संपर्क करें')}
+          <Button
+            size="lg"
+            variant="secondary"
+            onClick={() => navigate({ to: "/contact" })}
+          >
+            {t("Contact Us", "हमसे संपर्क करें")}
           </Button>
         </div>
       </section>
