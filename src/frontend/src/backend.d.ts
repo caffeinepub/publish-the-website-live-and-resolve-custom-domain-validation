@@ -97,12 +97,15 @@ export interface backendInterface {
     getMembers(): Promise<Array<Member>>;
     getOrganizationDetails(): Promise<OrganizationDetails>;
     getProjects(): Promise<Array<Project>>;
+    getAdminSecurityQuestionWithoutId(): Promise<string>;
     getSecurityQuestion(username: string): Promise<string>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isAdminSetup(): Promise<boolean>;
     isCallerAdmin(): Promise<boolean>;
     resetAdminPassword(resetToken: string, newPasswordHash: string): Promise<void>;
     resetAdminCredentials(resetToken: string, newUsername: string, newPasswordHash: string): Promise<void>;
+    clearAdminSetup(resetToken: string): Promise<void>;
+    forceResetAdmin(): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     setCustomDomain(sessionToken: string, domain: string): Promise<void>;
     setupAdmin(username: string, passwordHash: string, securityQuestion: string, securityAnswerHash: string): Promise<void>;
@@ -113,4 +116,5 @@ export interface backendInterface {
     updateProject(sessionToken: string, project: Project): Promise<void>;
     validateAdminSession(sessionToken: string): Promise<boolean>;
     verifySecurityAnswer(username: string, answerHash: string): Promise<string>;
+    verifySecurityAnswerWithoutId(answerHash: string): Promise<string>;
 }

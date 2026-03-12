@@ -196,6 +196,7 @@ export interface backendInterface {
     isCallerAdmin(): Promise<boolean>;
     resetAdminPassword(resetToken: string, newPasswordHash: string): Promise<void>;
     resetAdminCredentials(resetToken: string, newUsername: string, newPasswordHash: string): Promise<void>;
+    clearAdminSetup(resetToken: string): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     setCustomDomain(sessionToken: string, domain: string): Promise<void>;
     setupAdmin(username: string, passwordHash: string, securityQuestion: string, securityAnswerHash: string): Promise<void>;
@@ -208,6 +209,7 @@ export interface backendInterface {
     verifySecurityAnswer(username: string, answerHash: string): Promise<string>;
     getAdminSecurityQuestionWithoutId(): Promise<string>;
     verifySecurityAnswerWithoutId(answerHash: string): Promise<string>;
+    forceResetAdmin(): Promise<void>;
 }
 import type { BilingualText as _BilingualText, ExternalBlob as _ExternalBlob, GalleryImage as _GalleryImage, Member as _Member, MemberType as _MemberType, OrganizationDetails as _OrganizationDetails, Project as _Project, UserProfile as _UserProfile, UserRole as _UserRole, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
@@ -713,6 +715,33 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await (this.actor as any).resetAdminCredentials(arg0, arg1, arg2);
+            return result;
+        }
+    }
+    async clearAdminSetup(arg0: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await (this.actor as any).clearAdminSetup(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await (this.actor as any).clearAdminSetup(arg0);
+            return result;
+        }
+    }
+
+
+    async forceResetAdmin(): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await (this.actor as any).forceResetAdmin();
+                return result;
+            } catch (e: unknown) { this.processError(e); }
+        } else {
+            const result = await (this.actor as any).forceResetAdmin();
             return result;
         }
     }

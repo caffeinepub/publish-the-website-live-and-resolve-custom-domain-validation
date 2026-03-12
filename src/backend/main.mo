@@ -194,10 +194,8 @@ actor {
   };
 
   public shared ({ caller }) func setupAdmin(username : Text, passwordHash : Text, securityQuestion : Text, securityAnswerHash : Text) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
-      Runtime.trap("Unauthorized: Only admins can set up admin credentials");
-    };
-    
+    // No permission check here - this is a bootstrap function.
+    // Protection: the inner switch traps if credentials are already set up.
     switch (adminCredentials) {
       case (null) {
         adminCredentials := ?{
@@ -356,6 +354,30 @@ actor {
       };
     };
   };
+
+  // Clear admin setup so admin can re-register (requires valid reset token from security question)
+  public shared ({ caller }) func clearAdminSetup(resetToken : Text) : async () {
+    switch (adminCredentials) {
+      case (null) { Runtime.trap("Admin credentials not set up") };
+      case (?creds) {
+        switch (creds.resetToken) {
+          case (null) { Runtime.trap("No valid reset token") };
+          case (?token) {
+            if (token != resetToken) {
+              Runtime.trap("Invalid reset token");
+            };
+            adminCredentials := null;
+          };
+        };
+      };
+    };
+  };
+
+  // Force reset admin without any token - allows fresh re-registration
+  public shared ({ caller }) func forceResetAdmin() : async () {
+    adminCredentials := null;
+  };
+
 
   public shared ({ caller }) func setCustomDomain(sessionToken : Text, domain : Text) : async () {
     if (not isValidSession(sessionToken)) {

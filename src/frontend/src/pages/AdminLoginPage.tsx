@@ -52,12 +52,14 @@ const SECURITY_QUESTIONS = [
   },
 ];
 
+type Mode = "loading" | "register" | "login" | "reregister-confirm";
+
 export default function AdminLoginPage() {
   const navigate = useNavigate();
   const { isAuthenticated, login } = useAuth();
   const { t, language } = useLanguage();
 
-  const [mode, setMode] = useState<"loading" | "register" | "login">("loading");
+  const [mode, setMode] = useState<Mode>("loading");
   const [isLoading, setIsLoading] = useState(false);
 
   // Register fields
@@ -89,6 +91,34 @@ export default function AdminLoginPage() {
     } catch (error) {
       console.error("Error checking setup status:", error);
       setMode("login");
+    }
+  };
+
+  const handleStartReregister = () => {
+    setMode("reregister-confirm");
+  };
+
+  const handleConfirmReregister = async () => {
+    setIsLoading(true);
+    try {
+      const actor = (await createActorWithConfig()) as backendInterface;
+      await actor.forceResetAdmin();
+      toast.success(
+        t(
+          "Admin account reset! You can now register again.",
+          "व्यवस्थापक खाता रीसेट हुआ! अब आप दोबारा पंजीकरण कर सकते हैं।",
+        ),
+      );
+      setMode("register");
+    } catch (_err) {
+      toast.error(
+        t(
+          "Reset failed. Please try again.",
+          "रीसेट विफल हुआ। कृपया पुनः प्रयास करें।",
+        ),
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -144,7 +174,6 @@ export default function AdminLoginPage() {
         hashText(regSecurityAnswer),
       ]);
 
-      // Find question label
       const questionObj = SECURITY_QUESTIONS.find(
         (q) => q.value === regSecurityQuestion,
       );
@@ -166,7 +195,6 @@ export default function AdminLoginPage() {
         ),
       );
 
-      // Auto-login
       const success = await login(regUsername, regPassword);
       if (success) {
         navigate({ to: "/admin" });
@@ -213,6 +241,60 @@ export default function AdminLoginPage() {
             {t("Loading...", "लोड हो रहा है...")}
           </p>
         </div>
+      </div>
+    );
+  }
+
+  // Re-register confirmation screen
+  if (mode === "reregister-confirm") {
+    return (
+      <div className="flex min-h-[80vh] items-center justify-center py-12 px-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-orange-100">
+              <Shield className="h-8 w-8 text-orange-600" />
+            </div>
+            <CardTitle>
+              {t("Reset Admin Account?", "व्यवस्थापक खाता रीसेट करें?")}
+            </CardTitle>
+            <CardDescription>
+              {t(
+                "This will permanently delete the current admin account. You will need to register again.",
+                "इससे वर्तमान व्यवस्थापक खाता स्थायी रूप से हट जाएगा। आपको दोबारा पंजीकरण करना होगा।",
+              )}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3" data-ocid="admin.reregister.panel">
+            <Button
+              className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+              onClick={handleConfirmReregister}
+              disabled={isLoading}
+              data-ocid="admin.confirm_button"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {t("Resetting...", "रीसेट हो रहा है...")}
+                </>
+              ) : (
+                t(
+                  "Yes, Reset & Register Again",
+                  "हाँ, रीसेट करें और दोबारा पंजीकरण करें",
+                )
+              )}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={() => setMode("login")}
+              disabled={isLoading}
+              data-ocid="admin.cancel_button"
+            >
+              {t("Cancel", "रद्द करें")}
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -336,8 +418,8 @@ export default function AdminLoginPage() {
                 </Select>
                 <p className="text-xs text-muted-foreground">
                   {t(
-                    "Used to recover your account if you forget your password",
-                    "पासवर्ड भूलने पर खाता पुनः प्राप्त करने के लिए उपयोग किया जाएगा",
+                    "Used to recover your account if you forget your password or ID",
+                    "पासवर्ड या आईडी भूलने पर खाता पुनः प्राप्त करने के लिए उपयोग किया जाएगा",
                   )}
                 </p>
               </div>
@@ -451,14 +533,36 @@ export default function AdminLoginPage() {
                 )}
               </Button>
 
-              <div className="text-center">
-                <Link
-                  to="/forgot-password"
-                  className="text-sm text-muted-foreground underline-offset-4 hover:text-primary hover:underline"
-                  data-ocid="admin.link"
-                >
-                  {t("Forgot Password?", "पासवर्ड भूल गए?")}
-                </Link>
+              {/* Forgot links */}
+              <div className="rounded-lg border border-muted bg-muted/30 p-3 space-y-2 text-center">
+                <p className="text-xs text-muted-foreground">
+                  {t("Forgot your credentials?", "लॉगिन विवरण भूल गए?")}
+                </p>
+                <div className="flex flex-col gap-1">
+                  <Link
+                    to="/forgot-password"
+                    className="text-sm text-primary underline-offset-4 hover:underline"
+                    data-ocid="admin.link"
+                  >
+                    {t("Forgot Password?", "पासवर्ड भूल गए?")}
+                  </Link>
+                  <Link
+                    to="/forgot-password"
+                    className="text-sm text-primary underline-offset-4 hover:underline"
+                    data-ocid="admin.link"
+                  >
+                    {t("Forgot Admin ID?", "आईडी भूल गए?")}
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={handleStartReregister}
+                    disabled={isLoading}
+                    className="text-sm text-orange-600 underline-offset-4 hover:underline disabled:opacity-50"
+                    data-ocid="admin.reregister.button"
+                  >
+                    {t("Register Again?", "दोबारा पंजीकरण करें?")}
+                  </button>
+                </div>
               </div>
             </form>
           )}
